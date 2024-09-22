@@ -1,0 +1,18 @@
+# Verificar si la rama es master o main
+git branch
+
+# Verificar el estado del repositorio local
+git status
+
+# Añadir todos los archivos y cambios al área de preparación
+git add .
+
+# Hacer un commit con un mensaje descriptivo
+git commit -m "Descripción clara de los cambios"
+
+# Subir los cambios al repositorio remoto en GitHub
+# Si estás en la rama master
+git push origin master
+
+# Si estás en la rama main
+git push origin main

@@ -1,0 +1,15 @@
+# Crear entorno virtual
+python3 -m venv nombre_del_entorno
+
+# Activar entorno virtual (en Mac/Linux)
+source nombre_del_entorno/bin/activate
+
+# Instalar paquetes
+pip install nombre_paquete
+
+# Ejecutar script
+python3 tu_script.py
+
+# Desactivar entorno virtual
+deactivate
+

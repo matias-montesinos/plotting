@@ -70,9 +70,9 @@ def calculate_orbit(x0, y0, v0, theta):
     return solution, t, a, epsilon, e
 
 # Parámetros iniciales
-x0 = 60.  # Coordenada x inicial (en unidades astronómicas)
-y0 = 10.  # Coordenada y inicial (en unidades astronómicas)
-v0 = np.sqrt(2 * G * M / np.sqrt(x0**2 + y0**2))  # Velocidad inicial (velocidad de escape)
+x0 = 40.  # Coordenada x inicial (en unidades astronómicas)
+y0 = -10.  # Coordenada y inicial (en unidades astronómicas)
+v0 = 1.4*np.sqrt(2 * G * M / np.sqrt(x0**2 + y0**2))  # Velocidad inicial (velocidad de escape)
 theta = np.pi  # Ángulo de lanzamiento (en radianes)
 
 # Calcula la órbita
@@ -102,7 +102,8 @@ plt.show()
 
 
 # Cargar los datos
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_10MJ_NOfeel_upper/"
+#path = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_10MJ_NOfeel_upper/"
+path = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_1MJ_YESfeel_lower/"
 
 variables_par = np.genfromtxt(path+"/variables.par",dtype={'names': ("parametros","valores"),'formats': ("|S30","|S300")}).tolist()#Lee archivo var    iable.pary convierte a string       esita un int o float
 parametros_par, valores_par = [],[]                                                                                                                                                                                                                         #Reparte entre parametros y valores
@@ -271,10 +272,10 @@ def load_image(file):
 
 # Crear la animación
 frames = [load_image(file) for file in png_files]
-ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=1000, blit=True)
+ani = animation.ArtistAnimation(fig, frames, interval=500, repeat_delay=1000, blit=True)
 
 # Guardar la animación en un archivo MP4
 output_file = os.path.join(png_dir, 'gas_density_animation_from_png.mp4')
-ani.save(output_file, fps=5, extra_args=['-vcodec', 'libx264'])
+ani.save(output_file, fps=1, extra_args=['-vcodec', 'libx264'])
 
 plt.show()

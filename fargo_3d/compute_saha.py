@@ -230,7 +230,8 @@ unit_time     = np.sqrt( pow((R_scale*unit_length),3.) / G / unit_mass)/3.154e7 
 unit_disktime = float(P("NINTERM"))*float(P("DT"))*unit_time                    #yr/snapshot      [Las unidades de tiempo del disco se toman en R=1]
 unit_velocity = 1e-5*(unit_length*R_scale)/float(unit_time*3.154e7)                             #km/s
 unit_energy   = unit_mass/(unit_time*3.154e7)**2/(R_scale*unit_length)                  #erg/cm3 = gr/s2/cm
-
+unit_energy2 = unit_mass*(unit_length**2)/(unit_time*3.154e7)/unit_length**3 #erg/cm**3
+print(unit_energy, unit_energy2)
 
 #Planet
 print("Leyendo Planeta ...")

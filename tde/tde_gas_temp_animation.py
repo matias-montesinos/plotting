@@ -6,7 +6,7 @@ import glob
 import re
 
 # Ruta donde está almacenado el archivo planet0.dat
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
+path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
 
 #UNITS
 gamma=1.6666
@@ -74,7 +74,7 @@ files = glob.glob(path + "gasdens*.dat")
 # Filtrar archivos que se ajustan al patrón correcto
 valid_files = [f for f in files if pattern.match(os.path.basename(f))]
 # Contar el número de archivos válidos
-Ntot = len(valid_files)
+Ntot = 35 #len(valid_files)
 
 
 Ninter = int(P("NINTERM"))
@@ -103,7 +103,6 @@ output_dir = os.path.join(path, "gas_png")
 os.makedirs(output_dir, exist_ok=True)
 
 # Calcular los valores mínimos y máximos de la densidad globalmente
-# Calcular los valores mínimos y máximos de la densidad globalmente
 vmin_gas, vmax_gas = None, None
 for output_number in range(Ntot):
     dens_out = cargar_densidad(output_number, path)
@@ -115,6 +114,9 @@ for output_number in range(Ntot):
         vmin_gas = min(vmin_gas, log_dens_out.min())
         vmax_gas = max(vmax_gas, log_dens_out.max())
 
+
+# Cargar la temperatura del frame 0 (T0)
+T0 = cargar_temperature(0, path)
 # Calcular los valores mínimos y máximos de la densidad globalmente
 vmin_temp, vmax_temp = None, None
 for output_number in range(Ntot):
@@ -127,9 +129,23 @@ for output_number in range(Ntot):
         vmin_temp = min(vmin_temp, log_temp_out.min())
         vmax_temp = max(vmax_temp, log_temp_out.max())
 
+# Calcular los valores mínimos y máximos de la densidad globalmente
+vmin_temp_diff, vmax_temp_diff = None, None
+for output_number in range(Ntot):
+    temp_out = cargar_temperature(output_number, path)
+    Tdiff = (temp_out - T0)/T0
+    log_temp_out_diff =Tdiff #np.log10(Tdiff)
+    if vmin_temp_diff is None or vmax_temp_diff is None:
+        vmin_temp_diff = log_temp_out_diff.min()
+        vmax_temp_diff = log_temp_out_diff.max()
+    else:
+        vmin_temp_diff = min(vmin_temp_diff, log_temp_out_diff.min())
+        vmax_temp_diff = max(vmax_temp, log_temp_out_diff.max())
 
-# Configuración de la figura y los subgráficos
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(19, 8))
+print(vmin_temp_diff, vmax_temp_diff)
+
+# Configuración de la figura con 3 subgráficos (densidad, temperatura y Tdiff)
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(24, 6))
 
 # Gráfico de la densidad
 c1 = ax1.pcolormesh(X, Y, np.zeros_like(X), cmap='jet', shading='nearest', vmin=vmin_gas, vmax=vmax_gas)
@@ -145,6 +161,12 @@ ax2.set_xlabel('X [AU]')
 ax2.set_ylabel('Y [AU]')
 cb2 = fig.colorbar(c2, ax=ax2, label=r'Temperature [K]')
 
+# Gráfico de la diferencia de temperatura Tdiff
+c3 = ax3.pcolormesh(X, Y, np.zeros_like(X), cmap='bwr', shading='nearest', vmin=vmin_temp_diff, vmax=vmax_temp_diff)
+ax3.set_title(r'Temperature Difference ($(T - T_0)/ T_0$)')
+ax3.set_xlabel('X [AU]')
+ax3.set_ylabel('Y [AU]')
+cb3 = fig.colorbar(c3, ax=ax3, label=r'$(T - T_0)/ T_0$')
 
 # Función para actualizar cada frame en la animación
 def actualizar(frame):
@@ -153,28 +175,33 @@ def actualizar(frame):
     log_dens_frame = np.log10(dens_frame)
     temp_frame = cargar_temperature(frame, path)
     log_temp_frame = np.log10(temp_frame)
+    
+    # Calcular la diferencia de temperatura (Tdiff)
+    Tdiff = (temp_frame - T0) / T0
+    #print(Tdiff)
 
-    # Actualizar los datos de densidad y temperatura
+    # Actualizar los datos de densidad, temperatura y Tdiff
     c1.set_array(log_dens_frame.ravel())  # Actualiza los datos del pcolormesh de densidad
     c2.set_array(log_temp_frame.ravel())  # Actualiza los datos del pcolormesh de temperatura
+    c3.set_array(Tdiff.ravel())           # Actualiza los datos del pcolormesh de Tdiff
 
     # Calcular el tiempo de evolución en años
     tiempo_evolucion = Ninter * DT * frame
 
     # Actualizar el título general con el tiempo de evolución
-    fig.suptitle(f'Evolution time: {tiempo_evolucion:.2e} yr', fontsize=16)
+    fig.suptitle(f'Frame: {frame}, Evolution time: {tiempo_evolucion:.2e} yr', fontsize=16)
 
     # Guardar cada frame como PNG (opcional)
     file_path = os.path.join(output_dir, f"output_{frame:04d}.png")
     plt.savefig(file_path)
 
-    return c1, c2
+    return c1, c2, c3
 
 # Crear la animación
 ani = animation.FuncAnimation(fig, actualizar, frames=Ntot, interval=100, repeat=False)
 
 # Guardar la animación en un archivo MP4 en el mismo directorio de los PNG
-output_file = os.path.join(output_dir, 'gas_temp_animation.mp4')
+output_file = os.path.join(output_dir, 'gas_temp_animation_alfa.mp4')
 ani.save(output_file, writer='ffmpeg', fps=10)
 
 # Mostrar la animación en pantalla

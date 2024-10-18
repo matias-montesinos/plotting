@@ -5,10 +5,33 @@ import matplotlib.animation as animation
 import glob
 import re
 
+
+# Ruta donde está almacenado el archivo planet0.dat
+path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+
+#UNITS
+gamma=1.6666
+mu=2.35 #
+kb=1.380650424e-16 #ergs
+R_gas=8.314472e7 #erg/K/mol 
+G = 6.67259e-8 #cm**3 g**-1 s**-2
+mp= 1.672623099e-24 # g
+unit_mass   = 1.9891e33 # g
+unit_length = 1.49598e13 #cm
+
+unit_density=(unit_mass)/(unit_length**3) # g/cm**3
+unit_surf_density = (unit_mass/unit_length**2) # g/cm**2
+unit_time     = np.sqrt( pow(unit_length,3.) / G / unit_mass)/ 3.154e7 #yr 
+
+unit_energy   = unit_mass/(unit_time*3.154e7)**2/(unit_length)                  #erg/cm3 = gr/s2/cm  #juan garrido
+unit_surf_energy = unit_energy / unit_length
+
+unit_temperature  = ((G*mp*mu)/(kb))*(unit_mass/(unit_length)) #K
+
 # Función para cargar la densidad de gas
 def cargar_densidad(output_number, path):
     dens_out = np.fromfile(path + f"gasdens{output_number}.dat").reshape(NY, NX)
-    return dens_out
+    return dens_out*unit_surf_density
 
 # Función para leer las coordenadas del planeta desde planet0.dat
 def leer_coordenadas_planeta(path, snapshot, file_planet):
@@ -18,8 +41,7 @@ def leer_coordenadas_planeta(path, snapshot, file_planet):
     yp = planet0[snapshot][2]  # Coordenada y del planeta
     return xp, yp
 
-# Ruta donde está almacenado el archivo planet0.dat
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
+
 
 planet_file = path + "planet0.dat"
 planet_data = np.genfromtxt(planet_file)
@@ -28,7 +50,7 @@ planet_data = np.genfromtxt(planet_file)
 x_coords = planet_data[:, 1]  # Coordenada x del planeta
 y_coords = planet_data[:, 2]  # Coordenada y del planeta
 
-# Número de snapshots disponibles
+
 variables_par = np.genfromtxt(path+"/variables.par",dtype={'names': ("parametros","valores"),'formats': ("|S30","|S300")}).tolist()#Lee archivo var    iable.pary convierte a string       esita un int o float
 parametros_par, valores_par = [],[]                                                                                                                                                                                                                         #Reparte entre parametros y valores
 for posicion in variables_par:                                                                                                                                                                                                                              #
@@ -37,6 +59,7 @@ for posicion in variables_par:                                                  
 
 def P(parametro):
         return valores_par[parametros_par.index(parametro)] 
+
 
 # Identificar el número de outputs disponibles
 # Patrón para archivos gasdens*.dat con un número entero
@@ -87,55 +110,51 @@ for output_number in range(Ntot):
         vmax = max(vmax, log_dens_out.max())
 
 # Función para actualizar cada frame en la animación y guardar PNGs
+# Crear la animación
+fig, ax = plt.subplots(figsize=(8, 8))
+
+# Graficar la densidad de gas en el primer frame (solo para configurar la colorbar)
+dens_out = cargar_densidad(0, path)
+log_dens_out = np.log10(dens_out)
+plot = ax.pcolormesh(X, Y, log_dens_out, cmap='jet', shading='nearest', vmin=vmin, vmax=vmax)
+
+# Agregar la colorbar una sola vez, fuera del loop de actualización
+cbar = fig.colorbar(plot, ax=ax)
+cbar.set_label(r'Log Density [$\mathrm{g/cm^2}$]', fontsize=14)  # Etiqueta de la colorbar
+
+# Función para actualizar cada frame en la animación
 def actualizar(frame):
-    plt.gca().cla()  # Limpiar el gráfico para el nuevo frame
+    ax.cla()  # Limpiar el gráfico para el nuevo frame
     
     # Cargar la densidad de gas para el frame actual
     dens_out = cargar_densidad(frame, path)
     log_dens_out = np.log10(dens_out)
 
     # Graficar la densidad de gas
-    plt.pcolormesh(X, Y, log_dens_out, cmap='jet', shading='nearest', vmin=vmin, vmax=vmax)
+    plot = ax.pcolormesh(X, Y, log_dens_out, cmap='jet', shading='nearest', vmin=vmin, vmax=vmax)
     
-    # Graficar la órbita completa del planeta
-    #plt.plot(x_coords, y_coords, color='black', linestyle='-', marker='o', markersize=5, label='Órbita del planeta')
-    
-    # Graficar la posición actual del planeta en el frame
-    #plt.scatter(x_coords[frame], y_coords[frame], color='teal', s=100, edgecolor='black', label=f'Posición en frame {frame+1}')
-    
-    # Graficar la posición inicial en azul
-    #plt.scatter(x_coords[0], y_coords[0], color='blue', s=100, label='Posición inicial')
-    
-    # Graficar la posición final en rojo
-    #plt.scatter(x_coords[-1], y_coords[-1], color='red', s=100, label='Posición final')
-    
-    # Graficar el Sol en el centro
-    #plt.scatter(0, 0, color='yellow', s=200, edgecolor='orange', label='Star', zorder=5)
-
     # Calcular el tiempo de evolución en años
     tiempo_evolucion = Ninter * DT * frame
 
     # Configurar etiquetas, límites y leyenda
-    plt.xlim([-Rmax, Rmax])
-    plt.ylim([-Rmax, Rmax])
-    plt.xlabel('X [AU]', fontsize=14)
-    plt.ylabel('Y [AU]', fontsize=14)
-    plt.title(f'Frame {frame} \nTime {tiempo_evolucion:.2e} yr', fontsize=16)
+    ax.set_xlim([-Rmax, Rmax])
+    ax.set_ylim([-Rmax, Rmax])
+    ax.set_xlabel('X [AU]', fontsize=14)
+    ax.set_ylabel('Y [AU]', fontsize=14)
+    ax.set_title(f'Frame {frame} \nTime {tiempo_evolucion:.2e} yr', fontsize=16)
 
-    plt.legend()
-    plt.gca().set_aspect('equal', adjustable='box')  # Mantener proporciones
-    plt.grid(False)
+    ax.set_aspect('equal', adjustable='box')  # Mantener proporciones
+    ax.grid(False)
 
     # Guardar cada frame como PNG
     file_path = os.path.join(output_dir, f"output_{frame:04d}.png")
     plt.savefig(file_path)
 
 # Crear la animación
-fig = plt.figure(figsize=(8, 8))
 ani = animation.FuncAnimation(fig, actualizar, frames=Ntot, interval=100, repeat=False)
 
 # Guardar la animación en un archivo MP4 en el mismo directorio de los PNG
-output_file = os.path.join(output_dir, 'planet_orbit_with_gas_animation.mp4')
+output_file = os.path.join(output_dir, 'gas_isothermal.mp4')
 ani.save(output_file, writer='ffmpeg', fps=10)
 
 # Mostrar la animación en pantalla

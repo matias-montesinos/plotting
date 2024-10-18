@@ -6,9 +6,11 @@ import glob
 import re
 
 #Datos de la simulacion
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
+#path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_iso/"
-#path = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo/"
+path = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo/"
+frame = 50
+
 
 #UNITS
 gamma=1.6666
@@ -131,7 +133,7 @@ for output_number in range(Ntot):
         vmax_temp = max(vmax_temp, log_temp_out.max())
 
 
-frame = 50
+
 time = frame * DT * Ninter
 dens_frame = cargar_densidad(frame, path)
 log_dens_frame = np.log10(dens_frame)

@@ -10,6 +10,21 @@ from matplotlib.colors  import ListedColormap
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 
+snapshot      = 0 # int(input("Enter output: "))#   3 #100 #23
+cut_x         = 128
+#Crear Evolucion
+output_folder = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_3d_iso/"
+#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1/"
+#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f0_highres/"
+#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1_highres/"
+#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M2_f0/"
+
+#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/juan1/"
+#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1_highres/"
+
+output_folder_0 = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_3d_isoV2/"
+output_folder_1 = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_3d_isoV2/"
+
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -263,22 +278,13 @@ def plot_field(field, valor):
 
 #---#
 
-#Crear Evolucion
-output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1_k2/"
-#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1/"
-#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f0_highres/"
-#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1_highres/"
-#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M2_f0/"
 
-#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/juan1/"
-#output_folder = "/mnt/data1/mmontesinos/paperFargo3D/M1_f1_highres/"
 #Dominios -------------------------------------------------------------#
 domain_x = np.genfromtxt(output_folder+"/domain_x.dat")
 domain_y = np.genfromtxt(output_folder+"/domain_y.dat")[3:-3] #[3:-3] porque dominio Y utiliza celdas "fantasmas"
 domain_z = np.genfromtxt(output_folder+"/domain_z.dat")[3:-3] #[3:-3] porque dominio Z utiliza celdas "fantasmas"
 
-snapshot      = 95 # int(input("Enter output: "))#   3 #100 #23
-cut_x         = 128
+
 print("\n")
 print("Plotting model: ", output_folder)
 print("Output :", snapshot)
@@ -349,8 +355,7 @@ RP      = np.sqrt(((X)**2)+(Y-xp)**2+(Z)**2)
 
 
 
-output_folder_0 = "/mnt/data1/mmontesinos/paperFargo3D/M1_f0/"
-output_folder_1 = "/mnt/data1/mmontesinos/paperFargo3D/M1_f0_k2/"
+
 
 temp_0 = obtener_temp(output_folder_0)
 temp_1 = obtener_temp(output_folder_1)

@@ -6,7 +6,13 @@ import glob
 import re
 
 # Ruta donde está almacenado el archivo planet0.dat
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path_sergei = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
+path_test = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+
+path = path_sergei
+outputs_para_plotear = 100
+Ntot = outputs_para_plotear 
+
 
 #UNITS
 gamma=1.6666
@@ -74,7 +80,8 @@ files = glob.glob(path + "gasdens*.dat")
 # Filtrar archivos que se ajustan al patrón correcto
 valid_files = [f for f in files if pattern.match(os.path.basename(f))]
 # Contar el número de archivos válidos
-Ntot = 35 #len(valid_files)
+
+#Ntot = 35 #len(valid_files)
 
 
 Ninter = int(P("NINTERM"))
@@ -201,7 +208,7 @@ def actualizar(frame):
 ani = animation.FuncAnimation(fig, actualizar, frames=Ntot, interval=100, repeat=False)
 
 # Guardar la animación en un archivo MP4 en el mismo directorio de los PNG
-output_file = os.path.join(output_dir, 'gas_temp_animation_alfa.mp4')
+output_file = os.path.join(output_dir, 'gas_temp_animation_alfa1.mp4')
 ani.save(output_file, writer='ffmpeg', fps=10)
 
 # Mostrar la animación en pantalla

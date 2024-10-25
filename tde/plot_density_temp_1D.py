@@ -6,7 +6,12 @@ import sys
 
 
 # Ruta donde está almacenado el archivo planet0.dat
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path_sergei = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
+path_test = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path = path_sergei
+
+# Solicitar al usuario el snapshot a visualizar
+snapshot = 0 # int(input("Ingrese el número del snapshot: "))
 
 variables_par = np.genfromtxt(path+"/variables.par",dtype={'names': ("parametros","valores"),'formats': ("|S30","|S300")}).tolist()#Lee archivo var    iable.pary convierte a string       esita un int o float
 parametros_par, valores_par = [],[]                                                                                                                                                                                                                         #Reparte entre parametros y valores
@@ -57,8 +62,7 @@ NY = int(P("NY")) #len(domain_y) - 1
 Ninter = int(P("NINTERM"))
 DT = float(P("DT"))
 
-# Solicitar al usuario el snapshot a visualizar
-snapshot = int(input("Ingrese el número del snapshot: "))
+
 
 tiempo_evolucion = Ninter * DT * snapshot
 

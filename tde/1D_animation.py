@@ -4,7 +4,12 @@ import matplotlib.animation as animation
 import os
 
 # Ruta donde está almacenado el archivo planet0.dat
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path_sergei = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
+path_test = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path = path_sergei
+
+# Calcular el número total de snapshots
+Ntot = 100  # Ajustar según el número real de snapshots disponibles
 
 variables_par = np.genfromtxt(path + "/variables.par", dtype={'names': ("parametros", "valores"), 'formats': ("|S30", "|S300")}).tolist()
 parametros_par, valores_par = [], []
@@ -54,9 +59,6 @@ NY = int(P("NY"))  # len(domain_y) - 1
 Ninter = int(P("NINTERM"))
 DT = float(P("DT"))
 
-# Calcular el número total de snapshots
-Ntot = 35  # Ajustar según el número real de snapshots disponibles
-
 # Configuración de la figura
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
@@ -91,8 +93,8 @@ vmax_density += margen_density
 vmin_temp -= margen_temp
 vmax_temp += margen_temp
 
-dens_min, dens_max = vmin_density, vmax_density
-temp_min, temp_max = vmin_temp, vmax_temp
+dens_min, dens_max = 1e3, vmax_density #vmin_density, vmax_density
+temp_min, temp_max = 100, vmax_temp    #vmin_temp, vmax_temp
 
 
 # Inicializar las líneas que se actualizarán

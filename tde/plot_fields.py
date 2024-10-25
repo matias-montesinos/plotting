@@ -5,11 +5,14 @@ import matplotlib.animation as animation
 import glob
 import re
 
+
 #Datos de la simulacion
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_iso/"
 path = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo/"
+path = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_1MJ_YESfeel_lower/"
 frame = 50
+
 
 
 #UNITS

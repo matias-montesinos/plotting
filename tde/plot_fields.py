@@ -9,34 +9,41 @@ import re
 #Datos de la simulacion
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_iso/"
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo/"
-path = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_1MJ_YESfeel_lower/"
+path_fargo = "/home/matias/Simulations/mi_fargo3d/outputs/fargo/" #50 max
+path_flyby2d = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_1MJ_YESfeel_lower/" #frame 3
+path_tde_sergei = "/home/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/" # frame 100
+path_fargo_ad = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo2d_ad/"
+path = path_tde_sergei
+
 frame = 50
-
-
 
 #UNITS
 gamma=1.6666
 mu=2.35 #
-kb=1.380650424e-16 #ergs
+kb=1.380650424e-16 #ergs/K
 R_gas=8.314472e7 #erg/K/mol 
 G = 6.67259e-8 #cm**3 g**-1 s**-2
 mp= 1.672623099e-24 # g
+
 unit_mass   = 1.9891e33 # g
 unit_length = 1.49598e13 #cm
-
 unit_density=(unit_mass)/(unit_length**3) # g/cm**3
 unit_surf_density = (unit_mass/unit_length**2) # g/cm**2
 unit_time     = np.sqrt( pow(unit_length,3.) / G / unit_mass)/ 3.154e7 #yr 
-
-unit_energy   = unit_mass/(unit_time*3.154e7)**2/(unit_length)                  #erg/cm3 = gr/s2/cm  #juan garrido
+unit_energy   = unit_mass/(unit_time*3.154e7)**2/(unit_length)  #erg/cm3 = gr/s2/cm  #juan garrido
 unit_surf_energy = unit_energy / unit_length
-
-#unit_energy2 = unit_mass*(unit_length**2)/(unit_time*3.154e7)/unit_length**3    #erg/cm**3  #guido malo, falta tiempo2
-#print(unit_energy, unit_energy2)
 
 unit_temperature  = ((G*mp*mu)/(kb))*(unit_mass/(unit_length)) #K
 
+
+variables_par = np.genfromtxt(path+"/variables.par",dtype={'names': ("parametros","valores"),'formats': ("|S30","|S300")}).tolist()#Lee archivo var    iable.pary convierte a string       esita un int o float
+parametros_par, valores_par = [],[]                                                                                                                                                                                                                         #Reparte entre parametros y valores
+for posicion in variables_par:                                                                                                                                                                                                                              #
+        parametros_par.append(posicion[0].decode("utf-8"))                                                                                                                                                                                  #
+        valores_par.append(posicion[1].decode("utf-8"))                                                                                                                                                                                     #
+
+def P(parametro):
+        return valores_par[parametros_par.index(parametro)] 
 
 # Función para cargar la densidad de gas
 def cargar_densidad(output_number, path):
@@ -52,6 +59,95 @@ def cargar_temperature(output_number, path):
     temp = energy / dens / (R_gas / mu) * (gamma - 1)  # Temperatura en K
     
     return temp#*unit_temperature
+
+
+def compute_H(output_number, path):
+    "NOTA: SOLO VALIDO PARA MODELO ADIABATICO!"
+
+    # Cargar la temperatura
+    dens = np.fromfile(path + f"gasdens{output_number}.dat").reshape(NY, NX) * unit_density
+    energy = np.fromfile(path + f"gasenergy{output_number}.dat").reshape(NY, NX) * unit_energy
+    # Calcular la presión
+    press = (gamma - 1.0) * energy  
+    # Calcular la temperatura (en K)
+    temp = energy / dens / (R_gas / mu) * (gamma - 1)
+    # Calcular c_s (velocidad del sonido) usando la temperatura
+    cs = np.sqrt(kb * temp / (mu * mp))  # [cm/s]
+    # Calcular el radio r en cada celda (en cm)
+    r_c = 0.5 * (domain_y[1:] + domain_y[:-1]) * unit_length  # [cm]
+    # Calcular Omega(r) = sqrt(GM/r^3) (frecuencia angular) en cada celda
+    Omega = np.sqrt(G * unit_mass / r_c**3)  # [1/s]
+    # Expandir Omega para que coincida con las dimensiones de cs
+    Omega_expanded = Omega[:, np.newaxis]  # Expandimos Omega para tener las mismas dimensiones que cs
+    
+    # Calcular H(r) = c_s / Omega (altura del disco en cm)
+    H_out = cs / Omega_expanded  # [cm]
+    # Convertir H_out a unidades de AU
+    H_out_AU = H_out / unit_length  # [AU]
+    
+    return H_out_AU
+
+
+def plot_field_2D(field, log_scale=True):
+    """
+    Función para graficar un campo 2D en el plano XY.
+
+    Parámetros:
+    - field: matriz 2D del campo a graficar (puede ser altura, densidad, temperatura, etc.).
+    - log_scale: booleano que indica si se debe aplicar escala logarítmica (True para log10, False para escala lineal).
+    """
+    # Si se elige logaritmo, aplicar log10 al campo
+    if log_scale:
+        field_to_plot = np.log10(field)
+    else:
+        field_to_plot = field
+
+    # Crear la figura y la subparcela para el campo en 2D
+    fig, ax = plt.subplots(figsize=(9, 8))
+
+    # Gráfico del campo en 2D
+    c = ax.pcolormesh(X, Y, field_to_plot, cmap='jet', shading='nearest')
+    
+    # Títulos y etiquetas
+    ax.set_title('Disk Field' + (' (log10)' if log_scale else ''))
+    ax.set_xlabel('X [AU]')
+    ax.set_ylabel('Y [AU]')
+    
+    # Barra de color
+    fig.colorbar(c, ax=ax, label=r'Field Value' + (' (log10)' if log_scale else ''))
+
+    # Ajustar el diseño
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_field_1D(field, log_scale=False):
+    # Calcular el promedio azimutal del campo
+    field_1D = np.mean(field, axis=1)  # Promedio sobre el eje azimutal (axis=1)
+
+    # Si se elige logaritmo, aplicar log10 al campo
+    if log_scale:
+        field_1D_to_plot = np.log10(field_1D)
+    else:
+        field_1D_to_plot = field_1D
+
+    # Crear la figura para graficar en 1D
+    plt.figure(figsize=(9, 6))
+    # Graficar el campo 1D en función del radio r_c
+    r_c = 0.5 * (domain_y[1:] + domain_y[:-1])  # [au]
+    plt.plot(r_c, field_1D_to_plot, label='Field (Azimuthal Avg)', color='blue')
+    # Etiquetas y título
+    plt.xlabel('Radio [AU]')
+    plt.ylabel('Field Value' + (' (log10)' if log_scale else ''))
+    plt.title('Field promediado azimutalmente' + (' (log10)' if log_scale else ''))
+    # Configurar la cuadrícula
+    plt.grid(True)
+    # Mostrar la leyenda
+    plt.legend()
+    # Mostrar el gráfico
+    plt.show()
+
+
 
 # Función para leer las coordenadas del planeta desde planet0.dat
 def leer_coordenadas_planeta(path, snapshot, file_planet):
@@ -69,15 +165,6 @@ planet_data = np.genfromtxt(planet_file)
 x_coords = planet_data[:, 1]  # Coordenada x del planeta
 y_coords = planet_data[:, 2]  # Coordenada y del planeta
 
-# Número de snapshots disponibles
-variables_par = np.genfromtxt(path+"/variables.par",dtype={'names': ("parametros","valores"),'formats': ("|S30","|S300")}).tolist()#Lee archivo var    iable.pary convierte a string       esita un int o float
-parametros_par, valores_par = [],[]                                                                                                                                                                                                                         #Reparte entre parametros y valores
-for posicion in variables_par:                                                                                                                                                                                                                              #
-        parametros_par.append(posicion[0].decode("utf-8"))                                                                                                                                                                                  #
-        valores_par.append(posicion[1].decode("utf-8"))                                                                                                                                                                                     #
-
-def P(parametro):
-        return valores_par[parametros_par.index(parametro)] 
 
 # Identificar el número de outputs disponibles
 # Patrón para archivos gasdens*.dat con un número entero
@@ -98,8 +185,8 @@ DT = float(P("DT"))
 domain_x = np.genfromtxt(path + "domain_x.dat")
 domain_y = np.genfromtxt(path + "domain_y.dat")[3:-3]
 
-NX = len(domain_x) - 1
-NY = len(domain_y) - 1
+NX = int(P("NX"))# len(domain_x) - 1
+NY = int(P("NY")) #len(domain_y) - 1
 
 # Configuración de la grilla
 def Grilla_XY():
@@ -110,6 +197,15 @@ def Grilla_XY():
     return X, Y
 
 X, Y = Grilla_XY()
+
+
+# Calcular la altura del disco para un frame específico
+H_frame = compute_H(frame, path)
+# Graficar la altura en 2D
+plot_field_2D(H_frame)
+plot_field_1D(H_frame, log_scale=False)
+
+quit()
 
 # Calcular los valores mínimos y máximos de la densidad globalmente
 vmin_gas, vmax_gas = None, None

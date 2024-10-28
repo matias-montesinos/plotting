@@ -9,13 +9,13 @@ import re
 #Datos de la simulacion
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d/"
 #path = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_iso/"
-path_fargo = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo/"
+path_fargo = "/home/matias/Simulations/mi_fargo3d/outputs/fargo/" #50 max
 path_flyby2d = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_1MJ_YESfeel_lower/" #frame 3
-path_tde = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path_tde_sergei = "/home/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/" # frame 100
 path_fargo_ad = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo2d_ad/"
-path = path_fargo_ad
+path = path_tde_sergei
 
-frame = 0
+frame = 50
 
 #UNITS
 gamma=1.6666
@@ -62,6 +62,7 @@ def cargar_temperature(output_number, path):
 
 
 def compute_H(output_number, path):
+    "NOTA: SOLO VALIDO PARA MODELO ADIABATICO!"
 
     # Cargar la temperatura
     dens = np.fromfile(path + f"gasdens{output_number}.dat").reshape(NY, NX) * unit_density

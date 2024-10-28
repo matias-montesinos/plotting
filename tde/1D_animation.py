@@ -4,9 +4,10 @@ import matplotlib.animation as animation
 import os
 
 # Ruta donde está almacenado el archivo planet0.dat
-path_sergei = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
-path_test = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad/"
+path_sergei = "/home/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
+path_test = "/home/matias/Simulations/mi_fargo3d/outputs/fargo/"
 path = path_sergei
+
 
 # Calcular el número total de snapshots
 Ntot = 100  # Ajustar según el número real de snapshots disponibles

@@ -13,8 +13,8 @@ path_fargo = "/home/matias/Simulations/mi_fargo3d/outputs/fargo/" #50 max
 path_flyby2d = "/Users/matias/Simulations/mi_fargo3d/outputs/flyby2d_1MJ_YESfeel_lower/" #frame 3
 path_tde_sergei = "/home/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/" # frame 100
 path_fargo_ad = "/Users/matias/Simulations/mi_fargo3d/outputs/fargo2d_ad/"
-path = path_tde_sergei
-
+path_tde_segei_imac = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
+path = path_tde_segei_imac
 frame = 50
 
 #UNITS
@@ -58,7 +58,7 @@ def cargar_temperature(output_number, path):
     #temp    = mu*press/(dens*R_gas) * unit_temperature
     temp = energy / dens / (R_gas / mu) * (gamma - 1)  # Temperatura en K
     
-    return temp#*unit_temperature
+    return temp
 
 
 def compute_H(output_number, path):

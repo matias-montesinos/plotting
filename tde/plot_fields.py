@@ -180,7 +180,6 @@ Ntot = len(valid_files)
 Ninter = int(P("NINTERM"))
 DT = float(P("DT"))
 
-
 # Cargar la grilla de la simulación
 domain_x = np.genfromtxt(path + "domain_x.dat")
 domain_y = np.genfromtxt(path + "domain_y.dat")[3:-3]
@@ -205,7 +204,7 @@ H_frame = compute_H(frame, path)
 plot_field_2D(H_frame)
 plot_field_1D(H_frame, log_scale=False)
 
-quit()
+
 
 # Calcular los valores mínimos y máximos de la densidad globalmente
 vmin_gas, vmax_gas = None, None

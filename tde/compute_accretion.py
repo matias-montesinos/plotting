@@ -6,8 +6,9 @@ import glob
 import re
 
 
-path_tde_sergei = "/home/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/" # frame 100
-path = path_tde_sergei
+path_tde_sergeiElite = "/home/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/" # frame 100
+path_tde_segei_imac = "/Users/matias/Simulations/mi_fargo3d/outputs/tde_2d_ad_sergei/"
+path = path_tde_segei_imac
 
 # Identificar el número de outputs disponibles
 # Patrón para archivos gasdens*.dat con un número entero
@@ -146,12 +147,9 @@ plt.show()
 
 
 # Define the range of radii
-r_min = 0.5   # Minimum radius in AU (adjust as needed)
-r_max = 2.0   # Maximum radius in AU (adjust as needed)
-num_radii = 100  # Number of radii to evaluate
-
 # Create an array of radii
-radii = np.linspace(r_min, r_max, num_radii)  # [AU]
+radii = 0.5 * (domain_y[1:] + domain_y[:-1]) 
+num_radii = NY
 
 # Assuming 'output_numbers' and 'time_array' are already defined
 # output_numbers = range(Ntot)
@@ -193,7 +191,7 @@ plt.ylabel('Time [days]')
 plt.title('Accretion rate $\dot{M}(r, t)$')
 
 # Optionally adjust the limits of the plot
-plt.xlim(r_min, r_max)
+plt.xlim(radii.min(), radii.max())
 plt.ylim(time_array.min(), time_array.max())
 
 # Show the plot
@@ -215,11 +213,8 @@ for output_number in selected_outputs:
     time_days = time_code_units * unit_time / 86400  # Tiempo en días
     selected_times.append(time_days)
 
-
-
 # Crear un array de radios
 radii =  0.5 * (domain_y[1:] + domain_y[:-1])  # [AU] 
-
 # Inicializar una lista para almacenar las curvas de \dot{M}(r) en los tiempos seleccionados
 mdot_curves = []
 
@@ -306,9 +301,7 @@ plt.show()
 
 
 ##
-### mejora del calculo de la Luminosidad, no toma en consideracion cuando la accrecion va hacia afuera
-##
-# ... [Tu código previo: importaciones, definiciones, carga de datos, etc.] ...
+### Calculo de la luminosidad de acrecion
 
 # Parámetros del objeto central y constantes
 M_star = 1.0  # Masa del objeto central en masas solares
@@ -373,9 +366,10 @@ M_total = np.array(M_total)
 plt.figure(figsize=(10, 6))
 plt.plot(time_array_L, L_total_Lsun, marker='o')
 plt.xlabel('Time [days]')
-plt.ylabel('Absolute Magnitude $M$')
+#plt.ylabel('Absolute Magnitude $M$')
+plt.ylabel('Accretion luminosity (bolometric) $L_\odot$')
 plt.title('Total Accretion Luminosity Magnitude $M(t)$')
-plt.gca().invert_yaxis()  # Invertir eje Y
+#plt.gca().invert_yaxis()  # Invertir eje Y
 plt.grid(True)
 plt.tight_layout()
 plt.show()
@@ -536,7 +530,7 @@ plt.show()
 
 ## calculo de la luminosidad considerando extincion
 # Definir la extinción en la banda V
-A_V = 0.0 #17.0  # magnitudes
+A_V = 12.0  # magnitudes
 
 # Definir la función para aplicar la extinción
 def calcular_luminosidad_observada(Lbol, A_v):
